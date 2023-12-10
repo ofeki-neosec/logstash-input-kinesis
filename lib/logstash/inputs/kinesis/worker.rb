@@ -13,7 +13,7 @@ class LogStash::Inputs::Kinesis::Worker
   def initialize(*args)
     # nasty hack, because this is the name of a method on IRecordProcessor, but also ruby's constructor
     if !@constructed
-      @codec, @output_queue, @decorator, @checkpoint_interval, @logger = args
+      @codec, @output_queue, @decorator, @checkpoint_interval, @logger, @metric = args
       @next_checkpoint = Time.now - 600
       @constructed = true
     else
@@ -42,6 +42,7 @@ class LogStash::Inputs::Kinesis::Worker
     checkpointer.checkpoint()
   rescue => error
     @logger.error("Kinesis worker failed checkpointing: #{error}")
+    logger.increment(:checkpoint_failures)
   end
 
   def process_record(record)
@@ -54,6 +55,7 @@ class LogStash::Inputs::Kinesis::Worker
     end
   rescue => error
     @logger.error("Error processing record: #{error}")
+    logger.increment(:record_processing_errors)
   end
 
   def build_metadata(record)
