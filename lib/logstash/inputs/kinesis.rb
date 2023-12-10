@@ -174,7 +174,7 @@ class LogStash::Inputs::Kinesis < LogStash::Inputs::Base
   end
 
   def worker_factory(output_queue)
-    proc { Worker.new(@codec.clone, output_queue, method(:decorate), @checkpoint_interval_seconds, @logger) }
+    proc { Worker.new(@codec.clone, output_queue, method(:decorate), @checkpoint_interval_seconds, @logger, metric) }
   end
 
   protected
